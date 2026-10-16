@@ -1,0 +1,54 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Saathi</title>
+<style>
+:root{--tx:#14123a;--mu:#4a4780;--gl:rgba(255,255,255,.55);--gb:rgba(255,255,255,.8);--ac:#6d4aff;--ac2:#00c2c7;--bg:linear-gradient(135deg,#e6e0ff,#d4f6ff 50%,#ffe3f1)}
+@media(prefers-color-scheme:dark){:root{--tx:#f1efff;--mu:#b9b5e8;--gl:rgba(255,255,255,.09);--gb:rgba(255,255,255,.2);--bg:linear-gradient(135deg,#120d3a,#0b2b44 55%,#34124a)}}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font:17px/1.5 system-ui,"Noto Sans","Noto Sans Devanagari","Noto Sans Bengali",sans-serif;color:var(--tx);background:var(--bg) fixed;overflow-x:hidden}
+.orb{position:fixed;border-radius:50%;filter:blur(60px);opacity:.5;z-index:0;animation:f 14s ease-in-out infinite alternate}.a{width:360px;height:360px;background:#7c5cff;top:-80px;left:-80px}.b{width:320px;height:320px;background:#00d2d8;bottom:-60px;right:-40px;animation-delay:-6s}
+@keyframes f{to{transform:translate(60px,-50px) scale(1.2)}}
+.w{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:14px;perspective:1200px}
+h1{margin:4px 0;font-size:1.6rem;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.g{background:var(--gl);border:1px solid var(--gb);border-radius:22px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 20px 50px rgba(60,40,160,.22);padding:14px;transition:transform .2s}
+button,input,select,textarea{font:inherit;color:var(--tx)}
+input,select,textarea{background:var(--gl);border:1px solid var(--gb);border-radius:12px;padding:10px;min-width:0}
+.t{display:flex;gap:8px;margin:10px 0}.t button,.c{cursor:pointer;border:1px solid var(--gb);background:var(--gl);border-radius:12px;padding:10px 14px}.t .on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff}
+#log{height:52vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px}
+.m{max-width:88%;padding:11px 14px;border-radius:18px;white-space:pre-wrap;animation:i .3s both}@keyframes i{from{opacity:0;transform:translateY(8px)}}
+.bot{background:var(--gl);border:1px solid var(--gb);align-self:flex-start}.me{background:linear-gradient(135deg,var(--ac),#8a6bff);color:#fff;align-self:flex-end}
+.bar{display:flex;gap:8px;margin-top:10px}.bar input{flex:1}.go{cursor:pointer;border:0;border-radius:14px;padding:0 18px;color:#fff;background:linear-gradient(135deg,var(--ac),var(--ac2));font-weight:700}
+.mic{cursor:pointer;width:50px;border:1px solid var(--gb);background:var(--gl);border-radius:14px;font-size:1.2rem}.mic.r{background:#ff4d6d}
+.f{display:grid;gap:8px;margin-top:8px}#data{width:100%;height:46vh}.n{font-size:.8rem;color:var(--mu)}.hide{display:none}
+</style></head><body><div class="orb a"></div><div class="orb b"></div>
+<div class="w"><h1>Saathi · साथी</h1><div class="n">Ask in any language. Type or speak.</div>
+<div class="t"><button id="t1" class="on">Chat</button><button id="t2">My Data</button><select id="lg" title="Voice language"><option value="hi-IN">हिन्दी</option><option value="en-IN">English</option><option value="bn-IN">বাংলা</option><option value="ta-IN">தமிழ்</option><option value="te-IN">తెలుగు</option><option value="mr-IN">मराठी</option><option value="gu-IN">ગુજરાતી</option><option value="kn-IN">ಕನ್ನಡ</option><option value="ml-IN">മലയാളം</option><option value="pa-IN">ਪੰਜਾਬੀ</option><option value="or-IN">ଓଡ଼ିଆ</option><option value="ur-IN">اردو</option></select><button class="c" id="sp">🔊</button></div>
+<div class="g" id="tilt"><section id="chat"><div id="log"></div>
+<div class="bar"><input id="q" placeholder="Type your question…" autocomplete="off"><button class="mic" id="mic" aria-label="Speak">🎤</button><button class="go" id="go">Send</button></div></section>
+<section id="dsec" class="hide"><p class="n">Paste your information here (orders, student records, fees, forms, FAQs) or upload .txt, .csv, .json files. The AI answers only from this. Saved in this browser.</p>
+<textarea id="data" placeholder="Example: Student: Aarav, Roll 21CS047, attendance 142/176 classes. Fee due: Rs 18500 by 30 Oct."></textarea>
+<div class="bar"><input type="file" id="file" multiple accept=".txt,.csv,.json,.md"><button class="c" id="clr">Clear</button></div><div class="n" id="st"></div></section></div></div>
+<script>
+const $=s=>document.querySelector(s),log=$('#log'),K='saathi_data';let hist=[],speak=true,last='';
+$('#data').value=localStorage.getItem(K)||'';
+const save=()=>{try{localStorage.setItem(K,$('#data').value)}catch(e){}$('#st').textContent=$('#data').value.length+' characters saved'};
+$('#data').oninput=save;$('#clr').onclick=()=>{$('#data').value='';save()};
+$('#file').onchange=async e=>{for(const f of e.target.files)$('#data').value+=`\n### ${f.name}\n`+await f.text();save()};
+const tab=d=>{$('#chat').classList.toggle('hide',d);$('#dsec').classList.toggle('hide',!d);$('#t1').classList.toggle('on',!d);$('#t2').classList.toggle('on',d)};
+$('#t1').onclick=()=>tab(false);$('#t2').onclick=()=>tab(true);$('#sp').onclick=e=>{speak=!speak;e.target.textContent=speak?'🔊':'🔇'};
+function add(role,t){const d=document.createElement('div');d.className='m '+role;d.textContent=t;log.append(d);log.scrollTop=log.scrollHeight;return d}
+function say(t){if(!speak||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=$('#lg').value;speechSynthesis.speak(u)}catch(e){}}
+async function send(t){t=t.trim();if(!t)return;add('me',t);last=t;
+ if(!$('#data').value.trim()){add('bot','Please add your data first in the "My Data" tab.');return}
+ hist.push({role:'user',content:t});const w=add('bot','…');
+ try{const r=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:hist,data:$('#data').value})});const j=await r.json();
+  if(!r.ok)throw new Error(j.error||'Error');let a=j.reply,h=a.includes('[[HANDOFF]]');a=a.replace('[[HANDOFF]]','').trim();w.textContent=a;hist.push({role:'assistant',content:a});say(a);if(h)form()}
+ catch(e){w.textContent='Sorry, something went wrong: '+e.message}}
+function form(){const d=document.createElement('div');d.className='m bot';d.innerHTML='<div class="f"><input class="a" placeholder="Name"><input class="b" inputmode="tel" placeholder="Phone"><button class="go" style="padding:12px">Send to executive</button></div>';log.append(d);log.scrollTop=log.scrollHeight;
+ d.querySelector('button').onclick=async()=>{const n=d.querySelector('.a').value,p=d.querySelector('.b').value;
+  try{const r=await fetch('/api/handoff',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:n,phone:p,question:last,history:hist.slice(-4)})});const j=await r.json();if(!r.ok)throw new Error(j.error);
+   d.textContent='Ticket '+j.ticket+' sent. An executive will call you.';if(j.execPhone){const b=document.createElement('button');b.className='c';b.textContent='Executive did not call?';b.onclick=()=>{b.replaceWith(document.createTextNode('\nHelpline: '+j.execPhone+' (quote ticket '+j.ticket+')'))};d.append(document.createElement('br'),b)}}
+  catch(e){d.querySelector('.f').append(Object.assign(document.createElement('div'),{textContent:e.message}))}}}
+$('#go').onclick=()=>{send($('#q').value);$('#q').value=''};$('#q').onkeydown=e=>{if(e.key==='Enter')$('#go').click()};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+$('#mic').onclick=()=>{if(!SR){add('bot','Voice input needs Chrome or Edge.');return}const r=new SR(),b=$('#mic');r.lang=$('#lg').value;b.classList.add('r');r.onresult=e=>send(e.results[0][0].transcript);r.onend=r.onerror=()=>b.classList.remove('r');try{r.start()}catch(e){b.classList.remove('r')}};
+document.addEventListener('mousemove',e=>{if(innerWidth>700)$('#tilt').style.transform=`rotateY(${(e.clientX/innerWidth-.5)*6}deg) rotateX(${-(e.clientY/innerHeight-.5)*6}deg)`});
+save();add('bot','Namaste! I am Saathi. Add your data in the "My Data" tab, then ask me anything in your own language.');
+</script></body></html>
